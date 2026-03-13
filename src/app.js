@@ -1,16 +1,20 @@
 const express = require("express");
 const connectDB = require("./config/database");
 const UserModel = require("./models/user");
-const { validateUserData } = require("./utils/validations");
+const { validateSignupData } = require("./utils/validations");
 const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
+const { userAuth } = require("./middlewares/auth");
 
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
   try {
-    validateUserData(req.body);
+    validateSignupData(req.body);
 
     const { firstName, lastName, email, password } = req.body;
 
@@ -25,7 +29,7 @@ app.post("/signup", async (req, res) => {
     await user.save();
     res.send("User created successfully");
   } catch (err) {
-    res.status(400).send("Error creating user" + err.message);
+    res.status(400).send("Error creating user: " + err.message);
   }
 });
 
@@ -39,11 +43,26 @@ app.post("/login", async (req, res) => {
       throw new Error("Invalid email or password. Please try again.");
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await user.verifyPassword(password);
 
     if (!isPasswordValid) {
       throw new Error("Invalid email or password. Please try again.");
+    } else {
+      const token = await user.getJwt();
+
+      res.cookie("token", token, {
+        expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      });
+      res.send("Login successful");
     }
+  } catch (err) {
+    res.status(400).send("Error: " + err.message);
+  }
+});
+
+app.get("/profile", userAuth, async (req, res) => {
+  try {
+    res.send(req.user);
   } catch (err) {
     res.status(400).send("Error: " + err.message);
   }
