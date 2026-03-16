@@ -49,11 +49,9 @@ const userSchema = mongoose.Schema(
       type: String,
       required: false,
       trim: true,
-      validator: function (value) {
-        if (["male", "female", "other"].includes(value.toLowerCase())) {
-          return true;
-        }
-        return false;
+      enum: {
+        values: ["Male", "Female", "Others"],
+        message: "{VALUE} is not a valid gender",
       },
     },
     skills: {

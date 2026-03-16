@@ -14,8 +14,8 @@ const validatePassword = (password) => {
   }
 };
 
-const validateSignupData = (data) => {
-  const { firstName, lastName, email, password } = data;
+const validateSignupData = (req) => {
+  const { firstName, lastName, email, password } = req;
 
   if (!firstName) {
     throw new Error("First name is required");
@@ -33,7 +33,26 @@ const validateSignupData = (data) => {
   validatePassword(password);
 };
 
+const validateProfileData = (req) => {
+  const EDITABLE_FIELDS = [
+    "firstName",
+    "lastName",
+    "age",
+    "password",
+    "gender",
+    "skills",
+    "photoUrl",
+  ];
+
+  const isEditAllowed = Object.keys(req.body).every((field) =>
+    EDITABLE_FIELDS.includes(field),
+  );
+
+  return isEditAllowed;
+};
+
 module.exports = {
   validateEmail,
   validateSignupData,
+  validateProfileData,
 };
