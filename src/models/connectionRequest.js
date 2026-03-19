@@ -5,10 +5,12 @@ const ConnectionRequestSchema = mongoose.Schema(
     fromUserId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
+      ref: "User",
     },
     toUserId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
+      ref: "User",
     },
     status: {
       type: String,
@@ -22,17 +24,6 @@ const ConnectionRequestSchema = mongoose.Schema(
 ConnectionRequestSchema.index({ fromUserId: 1, toUserId: 1 }, { unique: true });
 
 ConnectionRequestSchema.pre("save", async function () {
-  const existingRequest = await this.constructor.findOne({
-    $or: [
-      { fromUserId: this.fromUserId, toUserId: this.toUserId },
-      { fromUserId: this.toUserId, toUserId: this.fromUserId },
-    ],
-  });
-
-  if (existingRequest) {
-    throw new Error("Connection request exists");
-  }
-
   if (this.fromUserId.equals(this.toUserId)) {
     throw new Error("Cannot send connection request to yourself");
   }
