@@ -6,7 +6,7 @@ const validator = require("validator");
 
 const profileRouter = express.Router();
 
-profileRouter.get("/", userAuth, async (req, res) => {
+profileRouter.get("/view", userAuth, async (req, res) => {
   try {
     res.send(req.user);
   } catch (err) {
