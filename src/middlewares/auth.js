@@ -8,7 +8,7 @@ const userAuth = async (req, res, next) => {
     const { token } = cookie;
 
     if (!token) {
-      throw new Error("Unauthorized. Please log in.");
+      res.status(401).send("Unauthorized. Please log in.");
     }
 
     const decoded = await jwt.verify(token, "secretkey");

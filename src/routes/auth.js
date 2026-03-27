@@ -1,7 +1,8 @@
 const express = require("express");
-const UserModel = require("../models/user");
+const User = require("../models/user");
 const { validateSignupData } = require("../utils/validations");
 const bcrypt = require("bcrypt");
+const USER_SAFE_DATA = require("../utils/constants");
 
 const authRouter = express.Router();
 
@@ -13,7 +14,7 @@ authRouter.post("/signup", async (req, res) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    const user = new UserModel({
+    const user = new User({
       firstName,
       lastName,
       email,
@@ -30,7 +31,7 @@ authRouter.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await UserModel.findOne({ email: email });
+    const user = await User.findOne({ email: email });
 
     if (!user) {
       throw new Error("Invalid email or password. Please try again.");
@@ -46,9 +47,15 @@ authRouter.post("/login", async (req, res) => {
       res.cookie("token", token, {
         expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
       });
-      res.send("Login successful");
+
+      const loggedInUser = user.toObject();
+      delete loggedInUser.password;
+      delete loggedInUser.__v;
+
+      res.json({ message: "Login successful", user: loggedInUser });
     }
   } catch (err) {
+    console.log(err);
     res.status(400).send("Error: " + err.message);
   }
 });

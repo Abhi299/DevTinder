@@ -11,10 +11,7 @@ userRouter.get("/requests/received", userAuth, async (req, res) => {
     const receivedRequests = await ConnectionRequest.find({
       toUserId: loggedInUser._id,
       status: "interested",
-    }).populate(
-      "fromUserId",
-      "firstName lastName email age gender skills photoUrl",
-    );
+    }).populate("fromUserId", "");
 
     res.json({
       message: "Requests fetched successfully!",
@@ -60,6 +57,10 @@ userRouter.get("/connections", userAuth, async (req, res) => {
 userRouter.get("/feed", userAuth, async (req, res) => {
   try {
     const loggedInUser = req.user;
+    const page = parseInt(req.query.page) || 1;
+    let limit = parseInt(req.query.limit) || 10;
+    limit = limit > 20 ? 20 : limit;
+    let skip = (page - 1) * limit;
 
     const connectionRequests = await ConnectionRequest.find({
       $or: [{ fromUserId: loggedInUser._id }, { toUserId: loggedInUser._id }],
@@ -81,7 +82,10 @@ userRouter.get("/feed", userAuth, async (req, res) => {
           _id: { $nin: Array.from(hiddenUserIds) },
         },
       ],
-    }).select("firstName lastName email age gender skills photoUrl");
+    })
+      .select("firstName lastName email age gender skills photoUrl")
+      .skip(skip)
+      .limit(limit);
 
     res.send(users);
   } catch (err) {
