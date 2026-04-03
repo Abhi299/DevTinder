@@ -8,9 +8,13 @@ const profileRouter = express.Router();
 
 profileRouter.get("/view", userAuth, async (req, res) => {
   try {
-    res.send(req.user);
+    const loggedInUser = req.user;
+    delete loggedInUser.password;
+    delete loggedInUser.__v;
+
+    res.json({ message: "Profile fetched successfully", data: loggedInUser });
   } catch (err) {
-    res.status(400).send("Error: " + err.message);
+    res.status(400).json({ error: "Error: " + err.message });
   }
 });
 
@@ -26,10 +30,14 @@ profileRouter.patch("/edit", userAuth, async (req, res) => {
       user[field] = req.body[field];
     });
 
+    const updatedUser = user.toObject();
+    delete updatedUser.password;
+    delete updatedUser.__v;
+
     await user.save();
-    res.send("Profile updated successfully");
+    res.json({ message: "Profile updated successfully", data: updatedUser });
   } catch (err) {
-    res.status(400).send("Error: " + err.message);
+    res.status(400).json({ error: "Error: " + err.message });
   }
 });
 

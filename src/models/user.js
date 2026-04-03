@@ -50,7 +50,7 @@ const userSchema = mongoose.Schema(
       required: false,
       trim: true,
       enum: {
-        values: ["Male", "Female", "Others"],
+        values: ["male", "female", "others"],
         message: "{VALUE} is not a valid gender",
       },
     },
@@ -63,7 +63,8 @@ const userSchema = mongoose.Schema(
       type: String,
       required: false,
       trim: true,
-      default: "https://www.istockphoto.com/photos/man-profile",
+      default:
+        "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fmedia.istockphoto.com%2Fid%2F1327592506%2Fvector%2Fdefault-avatar-photo-placeholder-icon-grey-profile-picture-business-man.jpg%3Fs%3D612x612%26w%3D0%26k%3D20%26c%3DBpR0FVaEa5F24GIw7K8nMWiiGmbb8qmhfkpXcp1dhQg%3D&f=1&nofb=1&ipt=ee1cc2ebadfa074ec06f66cf9dbbacb178d5952f78ed6a3150ae88d54499925f",
       validator: function (value) {
         if (value && !validator.isURL(value)) {
           throw new Error("Invalid URL format");
