@@ -7,6 +7,8 @@ const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
 const cors = require("cors");
 
+require("dotenv").config();
+
 const app = express();
 
 const corsOptions = {
@@ -26,7 +28,7 @@ app.use("/user", userRouter);
 
 connectDB()
   .then(() => {
-    app.listen(3200, () => {
+    app.listen(process.env.PORT, () => {
       console.log("server listening on port 3200");
     });
   })
